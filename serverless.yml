@@ -13,8 +13,8 @@ plugins:
   - serverless-offline
 
 functions:
-  createClient:
-    name: createClient
+  lambdaExpiration:
+    name: lambdaExpiration
     handler: src/infrastructure/lambdas/handler.handler
     events:
       - http:
