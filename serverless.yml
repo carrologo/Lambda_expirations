@@ -8,13 +8,15 @@ provider:
   environment:
     SUPABASE_URL: ${env:SUPABASE_URL}
     SUPABASE_KEY: ${env:SUPABASE_KEY}
+    STAGE: ${opt:stage, 'dev'} # Agregar variable de entorno para el stage
+    IS_OFFLINE: ${opt:isOffline, 'false'}
 
 plugins:
   - serverless-offline
 
 functions:
   lambdaExpiration:
-    name: lambdaExpiration
+    name: lambdaExpiration-${opt:stage, 'dev'}
     handler: src/infrastructure/lambdas/handler.handler
     events:
       - http:
