@@ -16,7 +16,7 @@ plugins:
 
 functions:
   lambdaExpiration:
-    name: lambdaExpiration-${opt:stage, 'dev'}
+    name: lambdaExpirations-${opt:stage, 'dev'}
     handler: src/infrastructure/lambdas/handler.expirationsHandler
     events:
       - http:
