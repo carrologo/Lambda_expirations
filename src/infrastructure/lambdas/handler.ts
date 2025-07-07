@@ -1,32 +1,89 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { SupabaseClientRepository } from "../database/SupabaseClientRepository";
-import { CreateClient } from "../../application/use-cases/CreateClient";
+import { SupabaseDocumentRepository } from "../database/SupabaseDocumentRepository";
+import { GetExpirations } from "../../application/use-cases/GetExpirations";
+import { PeriodType } from "../../domain/entities/ExpirationResult";
 
 const clientRepository = new SupabaseClientRepository();
-const createClient = new CreateClient(clientRepository);
+const documentRepository = new SupabaseDocumentRepository();
+const getExpirations = new GetExpirations(clientRepository, documentRepository);
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+export const expirationsHandler: APIGatewayProxyHandler = async (event) => {
   try {
-    const body = JSON.parse(event.body || "{}");
-    const { name, email } = body;
+    const queryParams = event.queryStringParameters || {};
+    const { period = 'week', date } = queryParams;
 
-    if (!name || !email) {
+    // Validar tipo de período
+    if (!Object.values(PeriodType).includes(period as PeriodType)) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ message: "Name and email are required" }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS'
+        },
+        body: JSON.stringify({ 
+          message: "Parámetro 'period' debe ser 'week' o 'month'" 
+        }),
       };
     }
 
-    const client = await createClient.execute(name, email);
+    // Procesar fecha de referencia si se proporciona
+    let referenceDate: Date | undefined;
+    if (date) {
+      referenceDate = new Date(date);
+      if (isNaN(referenceDate.getTime())) {
+        return {
+          statusCode: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Methods': 'GET, OPTIONS'
+          },
+          body: JSON.stringify({ 
+            message: "Formato de fecha inválido. Use YYYY-MM-DD" 
+          }),
+        };
+      }
+    }
+
+    const result = await getExpirations.execute(period as PeriodType, referenceDate);
 
     return {
-      statusCode: 201,
-      body: JSON.stringify(client),
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS'
+      },
+      body: JSON.stringify({
+        success: true,
+        data: result,
+        summary: {
+          birthdaysCount: result.upcomingBirthdays.length,
+          documentsCount: result.expiringDocuments.length,
+          period: result.period,
+          periodType: result.periodType
+        }
+      }),
     };
   } catch (error) {
+    console.error('Error in expirationsHandler:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: error instanceof Error ? error.message : "An unknown error occurred" }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS'
+      },
+      body: JSON.stringify({ 
+        success: false,
+        message: error instanceof Error ? error.message : "An unknown error occurred" 
+      }),
     };
   }
 };

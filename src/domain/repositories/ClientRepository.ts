@@ -1,5 +1,5 @@
 import { Client } from "../entities/Client";
 
 export interface ClientRepository {
-    save(client: Client): Promise<Client>;
-  }
+  findBirthdaysInPeriod(startDate: Date, endDate: Date): Promise<Client[]>;
+}
