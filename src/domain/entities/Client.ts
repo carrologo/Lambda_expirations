@@ -8,6 +8,7 @@ export class Client {
     public contact?: string,
     public isActive?: boolean,
     public comment?: string,
+    
     public last_name?: string
   ) {}
 }
