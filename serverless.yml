@@ -1,5 +1,5 @@
 service: my-serverless-api
-frameworkVersion: '4'
+frameworkVersion: "4"
 
 provider:
   name: aws
@@ -17,9 +17,9 @@ plugins:
 functions:
   lambdaExpiration:
     name: lambdaExpiration-${opt:stage, 'dev'}
-    handler: src/infrastructure/lambdas/handler.handler
+    handler: src/infrastructure/lambdas/handler.expirationsHandler
     events:
       - http:
-          path: /clients
-          method: post
+          path: /expirations
+          method: get
           cors: true
