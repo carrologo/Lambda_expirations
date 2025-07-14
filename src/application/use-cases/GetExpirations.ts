@@ -66,6 +66,19 @@ export class GetExpirations {
           expirationDate: doc.expiration_date,
           documentType: doc.type_name,
           documentTypeId: doc.document_type_id,
+          vehicle: doc.vehicle_id
+            ? {
+                id: doc.vehicle_id,
+                plate: doc.vehicle_plate,
+              }
+            : null,
+          buyer: doc.buyer_id
+            ? {
+                id: doc.buyer_id,
+                name: doc.buyer_name,
+                identification: doc.buyer_identification,
+              }
+            : null,
         })),
         period: periodDescription,
         periodType,
