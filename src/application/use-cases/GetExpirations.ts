@@ -77,6 +77,7 @@ export class GetExpirations {
                 id: doc.buyer_id,
                 name: doc.buyer_name,
                 identification: doc.buyer_identification,
+                contact: doc.buyer_contact,
               }
             : null,
         })),

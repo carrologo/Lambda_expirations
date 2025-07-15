@@ -35,14 +35,11 @@ export class SupabaseDocumentRepository implements DocumentRepository {
       throw new Error(error.message);
     }
 
-    console.log(
-      "Raw data from vehicle_document query:",
-      JSON.stringify(data, null, 2)
-    );
+    
 
     const documentsWithVehicleInfo = await Promise.all(
       (data || []).map(async (vehicleDoc: any) => {
-        console.log("Processing vehicleDoc:", vehicleDoc);
+
 
         // Validar que existan los datos necesarios
         if (!vehicleDoc.document) {
@@ -53,7 +50,6 @@ export class SupabaseDocumentRepository implements DocumentRepository {
           return null;
         }
 
-   
         if (!vehicleDoc.document.id) {
           console.warn("Documento sin ID encontrado:", vehicleDoc.document);
           return null;
@@ -75,6 +71,7 @@ export class SupabaseDocumentRepository implements DocumentRepository {
           id: number;
           name: string;
           identification: string;
+          contact: string;
         } | null = null;
 
         const doc = vehicleDoc.document;
@@ -93,7 +90,8 @@ export class SupabaseDocumentRepository implements DocumentRepository {
                   id,
                   name,
                   last_name,
-                  identification
+                  identification,
+                  contact
                 )
               `
               )
@@ -108,6 +106,7 @@ export class SupabaseDocumentRepository implements DocumentRepository {
                   id: transaction.client.id,
                   name: `${transaction.client.name} ${transaction.client.last_name}`.trim(),
                   identification: transaction.client.identification,
+                  contact: transaction.client.contact,
                 };
               }
             }
@@ -137,7 +136,8 @@ export class SupabaseDocumentRepository implements DocumentRepository {
           vehicle?.plate,
           buyerInfo?.id,
           buyerInfo?.name,
-          buyerInfo?.identification
+          buyerInfo?.identification,
+          buyerInfo?.contact
         );
       })
     );

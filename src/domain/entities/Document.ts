@@ -9,6 +9,7 @@ export class Document {
     public vehicle_plate?: string,
     public buyer_id?: number,
     public buyer_name?: string,
-    public buyer_identification?: string
+    public buyer_identification?: string,
+    public buyer_contact?: string
   ) {}
 }
